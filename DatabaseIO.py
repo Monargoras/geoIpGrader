@@ -221,3 +221,29 @@ class DatabaseIO:
             if cursor is not None:
                 cursor.close()
             return result
+
+    def getEvaluation(self, dbName: str) -> list | None:
+        cursor = None
+        result = []
+        try:
+            self.establishConnection()
+
+            sql = """SELECT SUM(consistent_entries), SUM(total_evaluated) FROM evaluation_results WHERE `database` = '{name}'""".format(name=dbName)
+
+            cursor = self.cnx.cursor()
+
+            cursor.execute(sql)
+
+            result = list(cursor.fetchone())
+
+            self.cnx.commit()
+
+        except mysql.connector.Error as error:
+            print(error)
+            return None
+        finally:
+            if self.cnx.is_connected():
+                self.cnx.close()
+            if cursor is not None:
+                cursor.close()
+            return result
