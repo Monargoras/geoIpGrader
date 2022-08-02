@@ -41,7 +41,6 @@ def gradeGeoIp(database: str):
                     recordDict[d][3] = None
                     noneLocations += 1
 
-            locations = {d: (recordDict[d][2], recordDict[d][3]) for d in [e.name for e in Databases]}
             # check distance between evalIP and rest
             # distance < 50 km -> counts as same location
             count = 1
@@ -56,7 +55,6 @@ def gradeGeoIp(database: str):
             if count > math.ceil((5-noneLocations)/2):
                 consistentIPS += 1
             totalIPS += 1
-        # print('Consistent:', consistentIPS, '----- Total:', totalIPS, '----- Invalid Locations:', noneLocations, '-----', blockNumber, '/', len(ipList))
 
         # safe evalStep in db
         dbio.safeEvaluation(evalDB, consistentIPS, totalIPS)
