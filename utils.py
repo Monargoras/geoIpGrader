@@ -1,4 +1,5 @@
 import ipaddress
+import requests
 from typing import Tuple
 
 
@@ -20,3 +21,14 @@ def ipToLong(ip: str) -> int:
 
 def longToIp(ip: int) -> str:
     return str(ipaddress.ip_address(ip))
+
+
+def ripeIpmapRequest(ip: str) -> tuple | None:
+    response = requests.get('https://ipmap-api.ripe.net/v1/locate/{ip}/best'.format(ip=ip))
+    if not response.ok:
+        return None
+    location = response.json()['location']
+    if location:
+        return location['latitude'], location['longitude']
+    else:
+        return None
