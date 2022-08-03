@@ -1,4 +1,3 @@
-import math
 import logging
 from DatabaseIO import DatabaseIO
 from Databases import Databases
@@ -52,7 +51,7 @@ def gradeGeoIp(database: str):
 
             # majority vote on location
             # if evalDB points to this location count as consistent entry
-            if count > math.ceil((5-noneLocations)/2):
+            if count >= (len([e.name for e in Databases]) - noneLocations) / 2:
                 consistentIPS += 1
             totalIPS += 1
 
