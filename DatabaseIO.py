@@ -1,7 +1,5 @@
 from typing import Dict, Union
 import mysql.connector
-
-from utils import ipToLong, validateIpv4, getFirstAndLastIpFromCidr
 from Databases import Databases
 
 
