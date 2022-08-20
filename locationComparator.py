@@ -26,7 +26,7 @@ def comparePeeringDCM():
                 totalEqualLocations += 1
             else:
                 totalUniqueLocations += 1
-        print('Peering vs DCM', '-----', 'Equal:', totalEqualLocations, '-----', 'Unique', totalUniqueLocations)
+    print('Peering vs DCM', '-----', 'Equal:', totalEqualLocations, '-----', 'Unique', totalUniqueLocations)
 
 
 def compareDCMPeering():
@@ -53,7 +53,7 @@ def compareDCMPeering():
                 totalEqualLocations += 1
             else:
                 totalUniqueLocations += 1
-        print('DCM vs Peering', '-----', 'Equal:', totalEqualLocations, '-----', 'Unique', totalUniqueLocations)
+    print('DCM vs Peering', '-----', 'Equal:', totalEqualLocations, '-----', 'Unique', totalUniqueLocations)
 
 
 if __name__ == '__main__':
