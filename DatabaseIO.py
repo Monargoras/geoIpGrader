@@ -245,3 +245,61 @@ class DatabaseIO:
             if cursor is not None:
                 cursor.close()
             return result
+
+    def getPeeringLocations(self, asn: int | None = None) -> list | None:
+        cursor = None
+        result = []
+        try:
+            self.establishConnection()
+
+            sql = """SELECT id, asn, lat, lng FROM asn_peering_locations_pdb ORDER BY asn"""
+
+            if asn:
+                sql = """SELECT id, asn, lat, lng FROM asn_peering_locations_pdb WHERE asn = {asn}""".format(asn=asn)
+
+            cursor = self.cnx.cursor()
+
+            cursor.execute(sql)
+
+            result = cursor.fetchall()
+
+            self.cnx.commit()
+
+        except mysql.connector.Error as error:
+            print(error)
+            return None
+        finally:
+            if self.cnx.is_connected():
+                self.cnx.close()
+            if cursor is not None:
+                cursor.close()
+            return result
+
+    def getDCMLocations(self, asn: int | None = None) -> list | None:
+        cursor = None
+        result = []
+        try:
+            self.establishConnection()
+
+            sql = """SELECT id, asn, latitude, longitude FROM data_center_map_data ORDER BY asn"""
+
+            if asn:
+                sql = """SELECT id, asn, latitude, longitude FROM data_center_map_data WHERE asn = {asn}""".format(asn=asn)
+
+            cursor = self.cnx.cursor()
+
+            cursor.execute(sql)
+
+            result = cursor.fetchall()
+
+            self.cnx.commit()
+
+        except mysql.connector.Error as error:
+            print(error)
+            return None
+        finally:
+            if self.cnx.is_connected():
+                self.cnx.close()
+            if cursor is not None:
+                cursor.close()
+            return result
