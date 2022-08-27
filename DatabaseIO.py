@@ -303,3 +303,37 @@ class DatabaseIO:
             if cursor is not None:
                 cursor.close()
             return result
+
+    def getIpLocationMaxMindRipe(self, ip: int) -> Dict[str, Union[list, None]] | None:
+        cursor = None
+        result = {}
+        try:
+            self.establishConnection()
+
+            sqlMaxmindPayed = """SELECT ip_start_long, ip_end_long, latitude, longitude FROM maxmind_payed_clean
+                         WHERE ip_end_long >= {ipEnd} ORDER BY ip_end_long limit 1""".format(ipEnd=ip)
+            sqlRipeIpmap = """SELECT ip_start_long, ip_end_long, latitude, longitude FROM ripeipmap_clean
+                         WHERE ip_end_long >= {ipEnd} ORDER BY ip_end_long limit 1""".format(ipEnd=ip)
+
+            cursor = self.cnx.cursor()
+
+            cursor.execute(sqlMaxmindPayed)
+            result[Databases.maxPayed.name] = list(cursor.fetchone())
+
+            cursor.execute(sqlRipeIpmap)
+            result[Databases.ripeIpmap.name] = list(cursor.fetchone())
+
+            self.cnx.commit()
+
+        except mysql.connector.Error as error:
+            print(error)
+            return None
+        finally:
+            if self.cnx.is_connected():
+                self.cnx.close()
+            if cursor is not None:
+                cursor.close()
+            for d in [e.name for e in [Databases.maxPayed, Databases.ripeIpmap]]:
+                if d not in result.keys():
+                    result[d] = [None, None, None, None]
+            return result
