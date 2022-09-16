@@ -51,7 +51,7 @@ class DatabaseIO:
                 self.cnx.close()
             if cursor is not None:
                 cursor.close()
-            return result
+        return result
 
     def getIpLocations(self, ip: int) -> Dict[str, Union[list, None]] | None:
         cursor = None
@@ -100,7 +100,7 @@ class DatabaseIO:
             for d in [e.name for e in Databases]:
                 if d not in result.keys():
                     result[d] = [None, None, None, None]
-            return result
+        return result
 
     def safeEvaluation(self, dbName: str, consistentEntries: int, totalEntries: int) -> bool:
         cursor = None
@@ -121,7 +121,7 @@ class DatabaseIO:
                 self.cnx.close()
             if cursor is not None:
                 cursor.close()
-            return True
+        return True
 
     def markIpsDone(self, dbName: str, ipList: list) -> bool:
         cursor = None
@@ -158,7 +158,7 @@ class DatabaseIO:
                 self.cnx.close()
             if cursor is not None:
                 cursor.close()
-            return True
+        return True
 
     def getProgress(self, dbName: str) -> list | None:
         cursor = None
@@ -218,7 +218,7 @@ class DatabaseIO:
                 self.cnx.close()
             if cursor is not None:
                 cursor.close()
-            return result
+        return result
 
     def getEvaluation(self, dbName: str) -> list | None:
         cursor = None
@@ -244,7 +244,7 @@ class DatabaseIO:
                 self.cnx.close()
             if cursor is not None:
                 cursor.close()
-            return result
+        return result
 
     def getPeeringLocations(self, asn: int | None = None) -> list | None:
         cursor = None
@@ -273,7 +273,7 @@ class DatabaseIO:
                 self.cnx.close()
             if cursor is not None:
                 cursor.close()
-            return result
+        return result
 
     def getDCMLocations(self, asn: int | None = None) -> list | None:
         cursor = None
@@ -302,7 +302,7 @@ class DatabaseIO:
                 self.cnx.close()
             if cursor is not None:
                 cursor.close()
-            return result
+        return result
 
     def getIpLocationMaxMindRipe(self, ip: int) -> Dict[str, Union[list, None]] | None:
         cursor = None
@@ -336,4 +336,49 @@ class DatabaseIO:
             for d in [e.name for e in [Databases.maxPayed, Databases.ripeIpmap]]:
                 if d not in result.keys():
                     result[d] = [None, None, None, None]
-            return result
+        return result
+
+    def addPopulation(self, countryCode: str, cityName: str, population: int) -> bool:
+        cursor = None
+        try:
+            self.establishConnection()
+
+            sql = """UPDATE dns_geo_hints SET population = %s 
+                                          WHERE (population IS NULL OR population < %s)
+                                          AND countryCodeAlpha2 = %s 
+                                          AND cityName LIKE CONCAT('%', %s, '%')"""
+
+            cursor = self.cnx.cursor()
+            cursor.execute(sql, (population, population, countryCode, cityName))
+            self.cnx.commit()
+
+        except mysql.connector.Error as error:
+            print(error)
+            return False
+        finally:
+            if self.cnx.is_connected():
+                self.cnx.close()
+            if cursor is not None:
+                cursor.close()
+        return True
+
+    def insertRegexes(self, data: list) -> bool:
+        cursor = None
+        try:
+            self.establishConnection()
+
+            sql = """INSERT INTO dns_regexes (domain, regexes, class, score, atp) VALUES (%s, %s, %s, %s, %s)"""
+
+            cursor = self.cnx.cursor()
+            cursor.executemany(sql, data)
+            self.cnx.commit()
+
+        except mysql.connector.Error as error:
+            print(error)
+            return False
+        finally:
+            if self.cnx.is_connected():
+                self.cnx.close()
+            if cursor is not None:
+                cursor.close()
+        return True
