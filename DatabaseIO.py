@@ -346,7 +346,7 @@ class DatabaseIO:
             sql = """UPDATE dns_geo_hints SET population = %s 
                                           WHERE (population IS NULL OR population < %s)
                                           AND countryCodeAlpha2 = %s 
-                                          AND cityName LIKE CONCAT('%', %s, '%')"""
+                                          AND CONCAT('%', cityName, '%') LIKE %s"""
 
             cursor = self.cnx.cursor()
             cursor.execute(sql, (population, population, countryCode, cityName))
@@ -371,6 +371,50 @@ class DatabaseIO:
 
             cursor = self.cnx.cursor()
             cursor.executemany(sql, data)
+            self.cnx.commit()
+
+        except mysql.connector.Error as error:
+            print(error)
+            return False
+        finally:
+            if self.cnx.is_connected():
+                self.cnx.close()
+            if cursor is not None:
+                cursor.close()
+        return True
+
+    def getDnsHints(self) -> list | None:
+        cursor = None
+        result = None
+        try:
+            self.establishConnection()
+
+            sql = """SELECT * FROM dns_geo_hints"""
+
+            cursor = self.cnx.cursor()
+            cursor.execute(sql)
+            result = cursor.fetchall()
+            self.cnx.commit()
+
+        except mysql.connector.Error as error:
+            print(error)
+            return None
+        finally:
+            if self.cnx.is_connected():
+                self.cnx.close()
+            if cursor is not None:
+                cursor.close()
+        return result
+
+    def updateDnsHint(self, rowId: int, population: int) -> bool:
+        cursor = None
+        try:
+            self.establishConnection()
+
+            sql = """UPDATE dns_geo_hints SET population = %s WHERE id = %s and population < %s"""
+
+            cursor = self.cnx.cursor()
+            cursor.execute(sql, (population, rowId, population))
             self.cnx.commit()
 
         except mysql.connector.Error as error:
